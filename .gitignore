@@ -1,0 +1,28 @@
+# Build directories
+/build*
+/bin*
+/out*
+
+# Compiled output
+*.exe
+*.dll
+*.so
+*.dylib
+*.o
+*.obj
+
+# Editor junk (Notepad++, Kate, Vim-style)
+*~
+*.bak
+*.tmp
+*.swp
+*.swo
+*.kate-swp
+
+# IDE folders (in case you switch later)
+.vscode/
+.idea/
+
+# Logs
+*.log
+

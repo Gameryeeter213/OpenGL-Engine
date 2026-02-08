@@ -1,0 +1,2 @@
+gcc src/main.c glad/src/gl.c -Iglad/include -lglfw -ldl -o Engine
+./Engine

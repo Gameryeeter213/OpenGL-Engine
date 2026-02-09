@@ -1,2 +1,2 @@
-gcc src/main.c glad/src/gl.c -Iglad/include -lglfw -lGL -lX11 -lpthread -lXrandr -lXi -ldl -o Engine
+g++ src/main.cpp glad/src/gl.c -Iglad/include -Iinclude -lglfw -lGL -lX11 -lpthread -lXrandr -lXi -ldl -lm -o Engine
 ./Engine

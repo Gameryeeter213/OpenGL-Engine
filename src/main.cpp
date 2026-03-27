@@ -6,6 +6,9 @@
 #include <shader.h>
 #include <iostream>
 #include <stb_image.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 void processInput(GLFWwindow *window,float &mix)
 {    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){glfwSetWindowShouldClose(window, 1);}
@@ -19,9 +22,9 @@ int main()
     float mix=0.0f;
 
     float vertices[] = {// Cord, color, text
-        0.0f,      0.3f, 0.0f, 	1.0f, 0.0f, 0.0f,	5.0f,0.0f,    // bottom-right
-        0.2598f, -0.15f, 0.0f, 	0.0f, 1.0f, 0.0f,	0.0f,0.0f,   // bottom-left
-        -0.2598f,-0.15f, 0.0f, 	0.0f, 0.0f, 1.0f,  	2.5f,5.0f   // top
+         0.5f, -0.288f, 0.0f, 	1.0f, 0.0f, 0.0f,	5.0f,0.0f,    // bottom-right
+        -0.5f, -0.288f, 0.0f, 	0.0f, 1.0f, 0.0f,	0.0f,0.0f,   // bottom-left
+         0.0f,  0.577f, 0.0f,     0.0f, 0.0f, 1.0f,  	2.5f,5.0f   // top
     };
 
     glfwInit();
@@ -43,8 +46,8 @@ int main()
 	glGenTextures(1, &texture1);
     glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture1);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Texwidth, Texheight, 0, GL_RGB, GL_UNSIGNED_BYTE, data1);
@@ -80,6 +83,10 @@ int main()
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
+
+    glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
+    unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+
     ourShader.use(); // don't forget to activate the shader before setting uniforms!  
     glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0); // set it manually
     ourShader.setInt("texture2", 1);
@@ -89,7 +96,7 @@ int main()
         float timeValue = glfwGetTime();
         float ro = (sin(timeValue) / 2.0f)+0.5f;
         float go = (cos(timeValue) / 2.0f)+0.5f;
-        float bo = (tan(timeValue) / 2.0f)+0.5f;
+        float bo = (tan(timeValue )/ 2.0f)+0.5f;
 
         processInput(window, mix);
         glClearColor(ro, go, bo, 1.0f);
@@ -99,9 +106,22 @@ int main()
         glUniform1f(FragMix,mix);
 
         // render the triangle
-        int vertexOffset= glGetUniformLocation(ourShader.ID, "Offset");
-        float xoffset = (timeValue);
-        glUniform3f(vertexOffset, xoffset,0.0f,0.0f);
+        glm::mat4 trans = glm::mat4(1.0f);
+        trans = glm::rotate(trans, timeValue, glm::vec3(0.0f, 0.0f, 1.0f));
+        trans = glm::translate(trans, glm::vec3(-0.5, -0.5, 0.0f));
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture1);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2);
+        glBindVertexArray(VAO[0]);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
+
+        glm::mat4 trans2 = glm::mat4(1.0f);
+        trans2 = glm::translate(trans2, glm::vec3(-0.5, 0.5, 0.0f));
+        trans2 = glm::scale(trans, glm::vec3(go, ro, 0.5));
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans2));
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1);
         glActiveTexture(GL_TEXTURE1);

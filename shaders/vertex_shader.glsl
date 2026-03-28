@@ -6,12 +6,17 @@ layout (location = 2) in vec2 aTexCoord;
 float aspect = 1.0f;
 
 uniform mat4 transform;
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
 out vec3 ourColor;
 out vec2 TexCoord;
 
+
 void main()
 {
-    gl_Position = transform * vec4(aPos, 1.0f);
+    // note that we read the multiplication from right to left
+    gl_Position = projection * view * model * transform * vec4(aPos, 1.0);
     ourColor = aColor;
     TexCoord = vec2(aTexCoord.x, aTexCoord.y);
 }

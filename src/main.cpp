@@ -18,14 +18,59 @@ void processInput(GLFWwindow *window,float &mix)
 
 int main()
 {
-    int height = 600; int width = 600;
+    int height = 720; int width = 1280;
     float mix=0.0f;
 
     float vertices[] = {// Cord, color, text
-         0.5f, -0.288f, 0.0f, 	1.0f, 0.0f, 0.0f,	5.0f,0.0f,    // bottom-right
-        -0.5f, -0.288f, 0.0f, 	0.0f, 1.0f, 0.0f,	0.0f,0.0f,   // bottom-left
-         0.0f,  0.577f, 0.0f,     0.0f, 0.0f, 1.0f,  	2.5f,5.0f   // top
+         0.5f, -0.288f, 0.5f, 	1.0f, 0.0f, 0.0f,	5.0f,0.0f, 
+        -0.5f, -0.288f, 0.5f, 	0.0f, 1.0f, 0.0f,	0.0f,0.0f,  //front triangle
+         0.0f,  0.577f, 0.5f,   0.0f, 0.0f, 1.0f,   2.5f,5.0f,
+
+
+         0.0f,  0.577f, 0.5f,   1.0f, 0.0f, 0.0f,   5.0f,0.0f, 
+         0.5f, -0.288f, 0.5f,   0.0f, 1.0f, 0.0f,   0.0f,0.0f,  
+         0.5f, -0.288f,-0.5f,   0.0f, 0.0f, 1.0f,   2.5f,5.0f,
+                                                                //right wall
+         0.0f,  0.577f, 0.5f,   1.0f, 0.0f, 0.0f,   5.0f,0.0f, 
+         0.5f, -0.288f,-0.5f,   0.0f, 1.0f, 0.0f,   0.0f,0.0f,  
+         0.0f,  0.577f,-0.5f,   0.0f, 0.0f, 1.0f,   2.5f,5.0f, 
+
+
+         0.5f, -0.288f, 0.5f,   1.0f, 0.0f, 0.0f,   5.0f,0.0f, 
+        -0.5f, -0.288f, 0.5f,   0.0f, 1.0f, 0.0f,   0.0f,0.0f,  
+         0.5f, -0.288f,-0.5f,   0.0f, 0.0f, 1.0f,   2.5f,5.0f,
+                                                                //Bottom wall
+         0.5f, -0.288f,-0.5f,   1.0f, 0.0f, 0.0f,   5.0f,0.0f, 
+        -0.5f, -0.288f, 0.5f,   0.0f, 1.0f, 0.0f,   0.0f,0.0f,  
+        -0.5f, -0.288f,-0.5f,   0.0f, 0.0f, 1.0f,   2.5f,5.0f, 
+
+
+        -0.5f, -0.288f,-0.5f,   1.0f, 0.0f, 0.0f,   5.0f,0.0f, 
+        -0.5f, -0.288f, 0.5f,   0.0f, 1.0f, 0.0f,   0.0f,0.0f,  
+         0.0f,  0.577f, 0.5f,   0.0f, 0.0f, 1.0f,   2.5f,5.0f,
+                                                                //Left wall
+        -0.5f, -0.288f,-0.5f,   1.0f, 0.0f, 0.0f,   5.0f,0.0f, 
+         0.0f,  0.577f,-0.5f,   0.0f, 1.0f, 0.0f,   0.0f,0.0f,  
+         0.0f,  0.577f, 0.5f,   0.0f, 0.0f, 1.0f,   2.5f,5.0f, 
+
+
+         0.5f, -0.288f,-0.5f,   1.0f, 0.0f, 0.0f,   5.0f,0.0f, 
+        -0.5f, -0.288f,-0.5f,   0.0f, 1.0f, 0.0f,   0.0f,0.0f,  //Back triangle
+         0.0f,  0.577f,-0.5f,   0.0f, 0.0f, 1.0f,   2.5f,5.0f
     };
+
+    glm::vec3 prisimPositions[] = {
+    glm::vec3( 0.0f,  0.0f,  0.0f), 
+    glm::vec3( 2.0f,  5.0f, -15.0f), 
+    glm::vec3(-1.5f, -2.2f, -2.5f),  
+    glm::vec3(-3.8f, -2.0f, -12.3f),  
+    glm::vec3( 2.4f, -0.4f, -3.5f),  
+    glm::vec3(-1.7f,  3.0f, -7.5f),  
+    glm::vec3( 1.3f, -2.0f, -2.5f),  
+    glm::vec3( 1.5f,  2.0f, -2.5f), 
+    glm::vec3( 1.5f,  0.2f, -1.5f), 
+    glm::vec3(-1.3f,  1.0f, -1.5f)  
+};
 
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -36,8 +81,13 @@ int main()
     glfwMakeContextCurrent(window);
     gladLoaderLoadGL();
     Shader ourShader("shaders/vertex_shader.glsl", "shaders/fragment_shader.glsl");
+    glEnable(GL_DEPTH_TEST);  
 
     glViewport(0, 0, width, height);
+    glm::mat4 view = glm::mat4(1.0f);
+// note that we're translating the scene in the reverse direction of where we want to move
+    view = glm::translate(view, glm::vec3(0.0f, 1.0f, -5.0f)); 
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width/height, 0.1f, 100.0f);
 	
 	int Texwidth, Texheight, nrChannels;
 	unsigned char *data1 = stbi_load("Textures/wall.jpg", &Texwidth, &Texheight, &nrChannels, 0);
@@ -86,6 +136,9 @@ int main()
 
     glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
     unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+    int modelLoc = glGetUniformLocation(ourShader.ID, "model");
+    int viewLoc = glGetUniformLocation(ourShader.ID, "view");
+    int projLoc = glGetUniformLocation(ourShader.ID, "projection");
 
     ourShader.use(); // don't forget to activate the shader before setting uniforms!  
     glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0); // set it manually
@@ -100,34 +153,33 @@ int main()
 
         processInput(window, mix);
         glClearColor(ro, go, bo, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         int FragMix= glGetUniformLocation(ourShader.ID, "FragMix");
         glUniform1f(FragMix,mix);
 
         // render the triangle
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
         glm::mat4 trans = glm::mat4(1.0f);
-        trans = glm::rotate(trans, timeValue, glm::vec3(0.0f, 0.0f, 1.0f));
-        trans = glm::translate(trans, glm::vec3(-0.5, -0.5, 0.0f));
+        //trans = glm::translate(trans, glm::vec3(go-0.5, ro-0.5, 0.0f));
+        //trans = glm::rotate(trans, timeValue, glm::vec3(0.0f, 0.0f, 1.0f));
         glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
         glBindVertexArray(VAO[0]);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-
-
-        glm::mat4 trans2 = glm::mat4(1.0f);
-        trans2 = glm::translate(trans2, glm::vec3(-0.5, 0.5, 0.0f));
-        trans2 = glm::scale(trans, glm::vec3(go, ro, 0.5));
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans2));
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture1);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2);
-        glBindVertexArray(VAO[0]);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        for(unsigned int i = 1; i < 11; i++){
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, prisimPositions[i]+glm::vec3(0.0f,mix,0.0f));
+            float angle = 20.0f * i; 
+            if(i % 3 == 0){angle*=timeValue;}
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+            glDrawArrays(GL_TRIANGLES, 0, 24);
+        }
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

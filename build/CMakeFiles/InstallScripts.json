@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"C:/msys64/home/pokem/OpenGL-Engine/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
